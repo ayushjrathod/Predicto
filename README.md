@@ -18,7 +18,7 @@ This project utilizes a Long Short-Term Memory (LSTM) network to predict future 
     Clone the repository:
     Bash
 
-    git clone https://github.com/<your-username>/stock-trend-prediction.git
+    git clone https://github.com/ayushjrathod/Stock-Trend-Prediction-Web-App.git
 
     Use code with caution.
 
