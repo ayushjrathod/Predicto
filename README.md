@@ -2,48 +2,28 @@
 
 ## Overview
 
-This project utilizes a Long Short-Term Memory (LSTM) network to predict future stock prices based on historical data. It leverages Streamlit to create an interactive web interface for visualizing predictions and stock trends.
+This project utilizes a Long Short-Term Memory (LSTM) network to predict future stock prices based on historical data.
+It fetches data from Yahoo Finance, preprocesses it, and trains an LSTM model to make predictions.
+The project also provides visualizations of the stock data and predictions to help users understand the trends.
+The web app is built using Streamlit, a Python library for creating interactive web applications.
 
 ## Key Features
 
-    Downloads historical stock data from Yahoo Finance.
-    Preprocesses data using MinMaxScaler.
-    Trains an LSTM model with multiple layers and dropout for regularization.
-    Displays descriptive statistics and visualizations of the stock data.
-    Generates predictions for future stock prices.
-    Shows a visual comparison of predicted vs. actual prices.
+1. Fetch historical stock data from Yahoo Finance.
+2. Preprocess the data and create a time series dataset.
+3. Train an LSTM model to predict future stock prices.
+4. Visualize the historical stock data and predictions.
+5. Display the predicted stock prices for the next 30 days.
+6. Provide an interactive web interface for users to explore the data and predictions.
 
 ## Installation
 
-    Clone the repository:
-    Bash
-
+```
     git clone https://github.com/ayushjrathod/Stock-Trend-Prediction-Web-App.git
-
-    Use code with caution.
-
-Install required libraries:
-Bash
-
-pip install -r requirements.txt
-
-Use code with caution.
-
-## Usage
-
-    Navigate to the project directory:
-    Bash
-
-    cd stock-trend-prediction
-
-    Use code with caution.
-
-Run the Streamlit app:
-Bash
-
-streamlit run app.py
-
-Use code with caution.
+    pip install -r requirements.txt
+    cd stock-trend-prediction-web-app
+    streamlit run app.py
+```
 
     Enter a stock ticker symbol in the input field and explore the visualizations and predictions.
 
