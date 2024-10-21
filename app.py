@@ -11,20 +11,21 @@ from sklearn.preprocessing import MinMaxScaler
 yf.pdr_override()
 
 # Title of the app
-st.title("Stock Price Predictor")
+st.title("Multivariate Stock Price Predictor")
 
-
-start = st.date_input("Start Date", value=pd.to_datetime('2010-01-01'))
-end = st.date_input("End Date", value=pd.to_datetime('2024-10-01'))
+start = st.date_input("Start Date", value=pd.to_datetime('2000-01-01'))
+end = st.date_input("End Date", value=pd.to_datetime('2023-09-15'))
 user_input = st.text_input('Enter Stock Ticker', 'AAPL')
 st.markdown("[Find Tickers](https://finance.yahoo.com)")
+
 predict_button = st.button('Analyze & Predict')
 
 if predict_button:
     df = data.data.get_data_yahoo(user_input, start, end)
+
     # Displaying data description
-    # st.subheader(f'Data from {start} to {end}')
-    # st.write(df.describe())
+    st.subheader(f'Data from {start} to {end}')
+    st.write(df.describe())
 
     # Visualizations
     st.subheader('Closing Price vs Time chart')
@@ -52,41 +53,45 @@ if predict_button:
     plt.legend()
     st.pyplot(fig)
 
-    # Splitting Data into Training and Testing
-    data_training = pd.DataFrame(df['Close'][0:int(len(df) * 0.70)])
-    data_testing = pd.DataFrame(df['Close'][int(len(df) * 0.70):int(len(df))])
-
+    # Selecting features for prediction
+    features = ['Open', 'High', 'Low', 'Close', 'Volume']
+    
+    # Preprocessing
     scaler = MinMaxScaler(feature_range=(0, 1))
-    data_training_array = scaler.fit_transform(data_training)
+    df_scaled = scaler.fit_transform(df[features])
+
+    # Create dataset with multiple features
+    def create_dataset(dataset, time_step=1):
+        X, Y = [], []
+        for i in range(len(dataset) - time_step - 1):
+            X.append(dataset[i:(i + time_step), :])
+            Y.append(dataset[i + time_step, 3])  # 3 is the index of 'Close' in features
+        return np.array(X), np.array(Y)
+
+    # Prepare testing data
+    time_step = 100
+    X_test, y_test = create_dataset(df_scaled, time_step)
 
     # Load Model
     model = load_model('keras_model.h5')
 
-    # Testing Part
-    past_100_days = data_training.tail(100)
-    final_df = pd.concat([past_100_days, data_testing], ignore_index=True)
-    input_data = scaler.fit_transform(final_df)
-
-    x_test = []
-    y_test = []
-
-    for i in range(100, input_data.shape[0]):
-        x_test.append(input_data[i-100:i])
-        y_test.append(input_data[i, 0])
-
-    x_test, y_test = np.array(x_test), np.array(y_test)
-
     # Making Predictions
-    y_predicted = model.predict(x_test)
-    scale_factor = 1 / scaler.scale_[0]
-    y_predicted = y_predicted * scale_factor
-    y_test = y_test * scale_factor
+    y_predicted = model.predict(X_test)
+
+    # Inverse transform to get actual prices
+    y_predicted_actual = np.zeros((len(y_predicted), len(features)))
+    y_predicted_actual[:, 3] = y_predicted.flatten()  
+    y_predicted_actual = scaler.inverse_transform(y_predicted_actual)[:, 3]
+
+    y_test_actual = np.zeros((len(y_test), len(features)))
+    y_test_actual[:, 3] = y_test
+    y_test_actual = scaler.inverse_transform(y_test_actual)[:, 3]
 
     # Final Prediction vs Original Graph
     st.subheader('Prediction vs Original')
     fig2 = plt.figure(figsize=(12, 6))
-    plt.plot(y_test, 'b', label='Original Price')
-    plt.plot(y_predicted, 'r', label='Predicted Price')
+    plt.plot(y_test_actual, 'b', label='Original Price')
+    plt.plot(y_predicted_actual, 'r', label='Predicted Price')
     plt.xlabel('Time')
     plt.ylabel('Price')
     plt.legend()
